@@ -2999,8 +2999,6 @@ void __init mtk_cpuidle_framework_init(void)
 	mtk_idle_hotplug_cb_init();
 	mtk_idle_profile_init();
 }
-EXPORT_SYMBOL(mtk_cpuidle_framework_init);
-
 
 module_param(mtk_idle_chk_golden, bool, 0644);
 module_param(mtk_dpidle_chk_golden, bool, 0644);
