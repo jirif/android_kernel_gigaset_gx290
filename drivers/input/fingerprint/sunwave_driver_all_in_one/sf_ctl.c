@@ -45,7 +45,7 @@
 #define SF_DRV_VERSION "v2.2.36-2018-11-14"
 
 #define MODULE_NAME "sunwave-sf_ctl"
-#define xprintk(level, fmt, args...) printk(level MODULE_NAME"-%d: "fmt, __LINE__, ##args)
+#define xprintk(level, fmt, args...) pr_debug(level MODULE_NAME"-%d: "fmt, __LINE__, ##args)
 
 #if SF_TRUSTKERNEL_COMPAT_SPI_MT65XX
 #define SPI_MODULE_CLOCK      (120 * 1000 * 1000)

@@ -147,7 +147,7 @@ static unsigned int target_clk;
 #define LOG_VRB(format, args...) \
 	pr_debug(MyTag "[%s] " format, __func__, ##args)
 
-#define ISP_DEBUG
+//#define ISP_DEBUG
 #ifdef ISP_DEBUG
 #define LOG_DBG(format, args...) \
 	pr_info(MyTag "[%s] " format, __func__, ##args)
@@ -971,7 +971,7 @@ static struct SV_LOG_STR gSvLog[ISP_IRQ_TYPE_AMOUNT];
 		do_div(sec, 1000);    \
 		usec = do_div(sec, 1000000);\
 	}
-#if 1
+#ifdef ISP_DEBUG
 #define IRQ_LOG_KEEPER(irq, ppb, logT, fmt, ...) do {\
 	char *ptr; \
 	char *pDes;\
@@ -1071,11 +1071,10 @@ static struct SV_LOG_STR gSvLog[ISP_IRQ_TYPE_AMOUNT];
 	} \
 } while (0)
 #else
-#define IRQ_LOG_KEEPER(irq, ppb, logT, fmt, args...) \
-		pr_info(IRQTag fmt,  ##args)
+#define IRQ_LOG_KEEPER(irq, ppb, logT, fmt, args...)
 #endif
 
-#if 1
+#ifdef ISP_DEBUG
 #define IRQ_LOG_PRINTER(irq, ppb_in, logT_in) do {\
 		struct SV_LOG_STR *pSrc = &gSvLog[irq];\
 		char *ptr;\
@@ -7399,7 +7398,9 @@ static long ISP_ioctl(struct file *pFile, unsigned int Cmd, unsigned long Param)
 	case ISP_DUMP_ISR_LOG:
 		if (copy_from_user(DebugFlag, (void *)Param,
 			sizeof(unsigned int)) == 0) {
+#ifdef ISP_DEBUG
 			unsigned int currentPPB = m_CurrentPPB;
+#endif
 			unsigned int lock_key = ISP_IRQ_TYPE_AMOUNT;
 
 			if (DebugFlag[0] >= ISP_IRQ_TYPE_AMOUNT) {
@@ -14882,9 +14883,10 @@ static void ISP_TaskletFunc_SV_5(unsigned long data)
 #if (ISP_BOTTOMHALF_WORKQ == 1)
 static void ISP_BH_Workqueue(struct work_struct *pWork)
 {
+#ifdef ISP_DEBUG
 	struct IspWorkqueTable *pWorkTable =
 		container_of(pWork, struct IspWorkqueTable, isp_bh_work);
-
+#endif
 	IRQ_LOG_PRINTER(pWorkTable->module, m_CurrentPPB, _LOG_ERR);
 	IRQ_LOG_PRINTER(pWorkTable->module, m_CurrentPPB, _LOG_INF);
 }

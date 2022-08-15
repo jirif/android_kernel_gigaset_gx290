@@ -49,7 +49,7 @@
 #include "imx214mipiraw_Sensor.h"
 
 #define PFX "IMX214_camera_sensor"
-#define LOG_INF(format, args...)	printk(PFX "[%s] " format, __FUNCTION__, ##args)
+#define LOG_INF(format, args...)	pr_debug(PFX "[%s] " format, __FUNCTION__, ##args)
 
 static DEFINE_SPINLOCK(imgsensor_drv_lock);
 /*LukeHu--150812
