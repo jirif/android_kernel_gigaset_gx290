@@ -33,7 +33,10 @@
 
 #include <linux/ring_buffer.h>
 #include <linux/trace_events.h>
+
+#ifdef CONFIG_TRACING
 #include <trace.h>
+#endif
 
 #include <linux/platform_device.h>
 #include <mt-plat/met_drv.h>

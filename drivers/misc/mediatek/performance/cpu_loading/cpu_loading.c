@@ -23,11 +23,8 @@
 #include <linux/module.h>
 #include <linux/miscdevice.h>	/* for misc_register, and SYNTH_MINOR */
 #include <linux/proc_fs.h>
-
-#ifdef CONFIG_TRACING
 #include <linux/kallsyms.h>
 #include <linux/trace_events.h>
-#endif
 
 #ifdef CONFIG_CPU_FREQ
 #include <linux/cpufreq.h>
@@ -108,6 +105,10 @@ void trace_cpu_loading_log(char *module, const char *fmt, ...)
 		log[255] = '\0';
 	va_end(args);
 	cpu_loading_trace(module, log);
+}
+#else
+void trace_cpu_loading_log(char *module, const char *fmt, ...)
+{
 }
 #endif
 

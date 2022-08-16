@@ -67,16 +67,15 @@ struct lb_env {
 extern void unthrottle_offline_rt_rqs(struct rq *rq);
 extern void mtk_update_new_capacity(struct energy_env *eenv);
 
-#ifdef CONFIG_MTK_SCHED_TRACERS
 #define LB_POLICY_SHIFT 16
 #define LB_CPU_MASK ((1 << LB_POLICY_SHIFT) - 1)
 
+#ifdef CONFIG_MTK_SCHED_TRACERS
 #define LB_FORK			(0x1 << LB_POLICY_SHIFT)
 #define LB_SMP			(0x2 << LB_POLICY_SHIFT)
 #define LB_HMP			(0x4 << LB_POLICY_SHIFT)
 #define LB_EAS			(0x8 << LB_POLICY_SHIFT)
 #define LB_HINT                 (0x10 << LB_POLICY_SHIFT)
-
 #else
 #define LB_FORK			(0)
 #define LB_SMP			(0)

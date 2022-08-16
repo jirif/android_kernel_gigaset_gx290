@@ -116,12 +116,14 @@ void __fpsgo_systrace_c(pid_t pid, int val, const char *fmt, ...)
 	vsnprintf(log, sizeof(log), fmt, args);
 	va_end(args);
 
+#ifdef CONFIG_TRACING
 	preempt_disable();
 	event_trace_printk(mark_addr, "C|%d|%s|%d\n", pid, log, val);
 	preempt_enable();
+#endif
 }
 
-void __fpsgo_systrace_b(pid_t tgid, const char *fmt, ...)
+void __fpsMTK_FPSGO_V3go_systrace_b(pid_t tgid, const char *fmt, ...)
 {
 	char log[256];
 	va_list args;
@@ -131,16 +133,20 @@ void __fpsgo_systrace_b(pid_t tgid, const char *fmt, ...)
 	vsnprintf(log, sizeof(log), fmt, args);
 	va_end(args);
 
+#ifdef CONFIG_TRACING
 	preempt_disable();
 	event_trace_printk(mark_addr, "B|%d|%s\n", tgid, log);
 	preempt_enable();
+#endif
 }
 
 void __fpsgo_systrace_e(void)
 {
+#ifdef CONFIG_TRACING
 	preempt_disable();
 	event_trace_printk(mark_addr, "E\n");
 	preempt_enable();
+#endif
 }
 
 void fpsgo_main_trace(const char *fmt, ...)

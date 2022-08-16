@@ -45,7 +45,9 @@ static unsigned int smi_parallel_mode;
 
 static void met_smi_debug(char *debug_log)
 {
-	SMI_MET_PRINTK("%s", debug_log);
+#ifdef CONFIG_TRACING
+    SMI_MET_PRINTK("%s", debug_log);
+#endif
 }
 
 /* get larb config */
@@ -452,6 +454,7 @@ static void SMI_MET_monitor(const bool on_off)
 	smi_reg_sync_writel(u4RegVal, SMI_MET_COMM_MON_ENA(SMICommBaseAddr[0]));
 }
 
+#ifdef CONFIG_TRACING
 static char *SMI_MET_ms_formatH_EOL(char *__restrict__ buf, unsigned char cnt,
 	unsigned int *__restrict__ value)
 {
@@ -504,14 +507,18 @@ static char *SMI_MET_ms_formatH_EOL(char *__restrict__ buf, unsigned char cnt,
 
 	return (s + 1);
 }
+#endif
 
 static noinline void ms_smi(unsigned char cnt, unsigned int *value)
 {
+#ifdef CONFIG_TRACING
 	char	*SOB, *EOB;
 
 	SMI_MET_PRINTK_GETBUF(&SOB, &EOB);
 	EOB = SMI_MET_ms_formatH_EOL(EOB, cnt, value);
+
 	SMI_MET_PRINTK_PUTBUF(SOB, EOB);
+#endif
 }
 
 #else

@@ -11,9 +11,6 @@
 # GNU General Public License for more details.
 #
 
-ifeq ($(CONFIG_FTRACE),y)
-ifeq ($(CONFIG_TRACING),y)
-
 ifeq ($(CONFIG_MTK_TINYSYS_SSPM_SUPPORT),y)
 ifneq (,$(filter $(CONFIG_MTK_PLATFORM), "mt6779"))
 ccflags-$(CONFIG_MACH_MT6779) += -I$(srctree)/drivers/misc/mediatek/base/power/qos/$(MTK_PLATFORM)/
@@ -27,5 +24,3 @@ obj-$(CONFIG_MACH_MT6761) += met_smi_config_mt6761.o
 obj-$(CONFIG_MACH_MT3967) += met_smi_config_mt3967.o
 obj-$(CONFIG_MACH_MT6779) += met_smi_config_mt6779.o
 obj-$(CONFIG_MACH_MT6763) += met_smi_config_mt6763.o
-endif
-endif
