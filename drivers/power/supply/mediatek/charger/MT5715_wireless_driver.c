@@ -157,7 +157,7 @@ int  ldo_disable(void);
 
 bool MT5715_good_status(void)
 {
-    pr_err("%s: gpio_get_value(mte->dc_gpio) =%d\n", __func__,gpio_get_value(mte->dc_gpio));
+    pr_debug("%s: gpio_get_value(mte->dc_gpio) =%d\n", __func__,gpio_get_value(mte->dc_gpio));
 	return !!(gpio_get_value(mte->dc_gpio));
 }
 EXPORT_SYMBOL(MT5715_good_status);
@@ -181,7 +181,7 @@ int MT5715_read(struct MT5715_dev *di, u16 reg, u8 *val)
 	    if (rc >= 0)
 	        *val = (u8)temp;
     } else {
-	    pr_err("%s: charger is off state\n", __func__);
+	    pr_debug("%s: charger is off state\n", __func__);
 	    return -1;
     }
     return rc;
@@ -196,7 +196,7 @@ int MT5715_write(struct MT5715_dev *di, u16 reg, u8 val)
 	    if (rc < 0)
 	        dev_err(di->dev, "NE6153 write error: %d\n", rc);
     } else {
-	    pr_err("%s: charger is off state\n", __func__);
+	    pr_debug("%s: charger is off state\n", __func__);
 	    return -1;
     }
 
@@ -208,7 +208,7 @@ int MT5715_read_buffer(struct MT5715_dev *di, u16 reg, u8 *buf, u32 size)
 	if (MT5715_power_status()) {
 		return regmap_bulk_read(di->regmap, reg, buf, size);
 	} else {
-		pr_err("%s: charger is off state\n", __func__);
+		pr_debug("%s: charger is off state\n", __func__);
 		return -1;
 	}
 }
@@ -220,7 +220,7 @@ int MT5715_write_buffer(struct MT5715_dev *di, u16 reg, u8 *buf, u32 size)
 	#if 0
 	/* debug */
 	if (size == 2)
-		pr_err("%s: 0x%02x%02x\n", __func__, buf[0], buf[1]);
+		pr_debug("%s: 0x%02x%02x\n", __func__, buf[0], buf[1]);
 	#endif
 
     if (MT5715_power_status()) {
@@ -232,7 +232,7 @@ int MT5715_write_buffer(struct MT5715_dev *di, u16 reg, u8 *buf, u32 size)
     		}
     	}
     } else {
-    	pr_err("%s: charger is off state\n", __func__);
+    	pr_debug("%s: charger is off state\n", __func__);
     	return -1;
     }
 
@@ -275,7 +275,7 @@ static int MT5715_irq_status(int read)
 	int rc = 0;
 	int count = 3;//i2c err
 
-	pr_err("enter %s: \n", __func__);
+	pr_debug("enter %s: \n", __func__);
 
 
     irq_flag_temp.value = 0;
@@ -289,61 +289,61 @@ static int MT5715_irq_status(int read)
 		if (read) {//read
 			rc = MT5715_read_buffer(mte, reg_access[INT_FLAG].addr, irq_flag.ptr, 2);			
 			if (rc){
-				pr_err("%s: MT5715_read_buffer rc =%d \n", __func__,rc);
+				pr_debug("%s: MT5715_read_buffer rc =%d \n", __func__,rc);
 				continue;
 			}
 			else {
-				pr_err("%s: read irq status successful, 0x%02x%02x, 0x%04x\n", __func__, irq_flag.ptr[0], irq_flag.ptr[1], irq_flag.value);
+				pr_debug("%s: read irq status successful, 0x%02x%02x, 0x%04x\n", __func__, irq_flag.ptr[0], irq_flag.ptr[1], irq_flag.value);
 				return (irq_flag.ptr[0] << 8 | irq_flag.ptr[1]);
 			}
 		} else {//write clear
 			rc = MT5715_read_buffer(mte, reg_access[INT_FLAG].addr, irq_flag.ptr, 2);
 			if (rc){ 
-				pr_err("%s: MT5715_read_buffer rc =%d  step1\n", __func__,rc);
+				pr_debug("%s: MT5715_read_buffer rc =%d  step1\n", __func__,rc);
 				continue;
 			}
 
-			pr_err("%s: read irq, 0x%02x%02x, 0x%04x\n", __func__, irq_flag.ptr[0], irq_flag.ptr[1], irq_flag.value);
+			pr_debug("%s: read irq, 0x%02x%02x, 0x%04x\n", __func__, irq_flag.ptr[0], irq_flag.ptr[1], irq_flag.value);
 
             irq_flag_temp.ptr[0] = irq_flag.ptr[0];
 			irq_flag.ptr[0] = irq_flag_temp.ptr[0] & 0xFE;
 			
-			pr_err("%s: INTCTLR, 0x%02x%02x, 0x%04x\n", __func__, irq_flag.ptr[0], irq_flag.ptr[1], irq_flag.value);
+			pr_debug("%s: INTCTLR, 0x%02x%02x, 0x%04x\n", __func__, irq_flag.ptr[0], irq_flag.ptr[1], irq_flag.value);
 			rc = MT5715_write_buffer(mte, reg_access[INTCTLR].addr, irq_flag.ptr, 2);
 			if (rc){
-				pr_err("%s: MT5715_read_buffer rc =%d  step2\n", __func__,rc);
+				pr_debug("%s: MT5715_read_buffer rc =%d  step2\n", __func__,rc);
 				continue;
 			}
 
 			irq_flag.ptr[0] = 0x00;
 			irq_flag.ptr[1] = CLRINT;
-			pr_err("%s: cmd, 0x%02x%02x, 0x%04x\n", __func__, irq_flag.ptr[0], irq_flag.ptr[1], irq_flag.value);
+			pr_debug("%s: cmd, 0x%02x%02x, 0x%04x\n", __func__, irq_flag.ptr[0], irq_flag.ptr[1], irq_flag.value);
 			rc = MT5715_write_buffer(mte, reg_access[CMD].addr, irq_flag.ptr, 2);
 			if (rc){
-				pr_err("%s: MT5715_read_buffer rc =%d  step3\n", __func__,rc);
+				pr_debug("%s: MT5715_read_buffer rc =%d  step3\n", __func__,rc);
 				continue;
 			}
 
 			rc = MT5715_read_buffer(mte, reg_access[INT_FLAG].addr, irq_flag.ptr, 2);
 			if (rc){ 
-				pr_err("%s: MT5715_read_buffer rc =%d  step4\n", __func__,rc);
+				pr_debug("%s: MT5715_read_buffer rc =%d  step4\n", __func__,rc);
 				continue;
 			}
 			else {
-				pr_err("%s: read irq after, 0x%02x%02x, 0x%04x\n", __func__, irq_flag.ptr[0], irq_flag.ptr[1], irq_flag.value);
+				pr_debug("%s: read irq after, 0x%02x%02x, 0x%04x\n", __func__, irq_flag.ptr[0], irq_flag.ptr[1], irq_flag.value);
 				if (irq_flag.value == 0) {
-					pr_err("%s: clear irq successful\n", __func__);
+					pr_debug("%s: clear irq successful\n", __func__);
 					return irq_flag.value;
 				}
 				else {				
-					pr_err("%s: clear irq fail 0x%04x\n", __func__, irq_flag.value);
+					pr_debug("%s: clear irq fail 0x%04x\n", __func__, irq_flag.value);
 					msleep(5);
 					rc = MT5715_read_buffer(mte, reg_access[INT_FLAG].addr, irq_flag.ptr, 2);
 					if (rc){
-						pr_err("%s: MT5715_read_buffer rc =%d  step5\n", __func__,rc);
+						pr_debug("%s: MT5715_read_buffer rc =%d  step5\n", __func__,rc);
 						continue;
 					}
-					pr_err("%s: clear irq second time 0x%02x%02x 0x%04x\n", __func__, irq_flag.ptr[0], irq_flag.ptr[1], irq_flag.value);
+					pr_debug("%s: clear irq second time 0x%02x%02x 0x%04x\n", __func__, irq_flag.ptr[0], irq_flag.ptr[1], irq_flag.value);
 					return (irq_flag.ptr[0] << 8 | irq_flag.ptr[1]);
 				}
 			}
@@ -351,7 +351,7 @@ static int MT5715_irq_status(int read)
 	} while (count --);
 	//mutex_unlock(&mte->slock);
 
-	pr_err("%s: rc = %d\n", __func__, rc);
+	pr_debug("%s: rc = %d\n", __func__, rc);
 	return rc;
 }
 /* ic irq read/ write clear */
@@ -371,34 +371,34 @@ static int MT5715_ldo_status(bool read, int *vol)
     		return -1;
     	else {
     		vout_value = val.ptr[0] << 8 |  val.ptr[1];
-    		pr_err("chip Vout : %d\n",vout_value);
+    		pr_debug("chip Vout : %d\n",vout_value);
     		*vol = vout_value;
     		return ret;
     	}
     } else {
     	val.value = *vol;
     	if((vout_value < 0) || (vout_value > 20000)) {
-    		pr_err("REG_VOUTSET Parameter error\n");
+    		pr_debug("REG_VOUTSET Parameter error\n");
     		return -1;
     	}
 
     	tmp = val.ptr[0];
     	val.ptr[0] = val.ptr[1];
     	val.ptr[1] = tmp;
-    	pr_err("set chip Vout: %02x%02x\n", val.ptr[0], val.ptr[1]);
+    	pr_debug("set chip Vout: %02x%02x\n", val.ptr[0], val.ptr[1]);
 
     	ret = MT5715_write_buffer(mte, REG_VOUTSET, val.ptr,2);
     	if (ret) {
-    		pr_err("set chip Vout: %d fail\n",vout_value);
+    		pr_debug("set chip Vout: %d fail\n",vout_value);
     		return -1;
     	} else {
     		ret = MT5715_read_buffer(mte, reg_access[VOUT].addr, val.ptr, 2);
     		if (ret) {
-    			pr_err("read chip Vout: %d fail\n",vout_value);
+    			pr_debug("read chip Vout: %d fail\n",vout_value);
     			return -1;
     		} else {
     			vout_value = val.ptr[0] << 8 |  val.ptr[1];
-    			pr_err("read chip Vout: %d\n",vout_value);
+    			pr_debug("read chip Vout: %d\n",vout_value);
     			return vout_value;
     		}
     	}
@@ -436,10 +436,10 @@ void wireless_power_charge_complete(void){
     u8 cmd_buff[2] = {0x00,0x08};
 	int ret;
     ret = MT5715_write_buffer(mte,0x0040,ask_buff,2);
-    pr_err("%s: MT5715_write_buffer  0x0040 ret =%d  \n", __func__,ret);
+    pr_debug("%s: MT5715_write_buffer  0x0040 ret =%d  \n", __func__,ret);
  
     ret = MT5715_write_buffer(mte,REG_CMD,cmd_buff,2);
-	pr_err("%s: MT5715_write_buffer  REG_CMD ret =%d  \n", __func__,ret);
+	pr_debug("%s: MT5715_write_buffer  REG_CMD ret =%d  \n", __func__,ret);
 }
 EXPORT_SYMBOL(wireless_power_charge_complete);
 
@@ -447,7 +447,7 @@ void verify_iic_write(u16 reg_addr,u8 *ptr,u8 len){
 	u8 vytr[20];
 	int ir,jr,ret;
 	if(len > 19){
-		pr_err("%s:len error!  \n",__func__);
+		pr_debug("%s:len error!  \n",__func__);
 		return;
 	}
 	for(ir = 0;ir < 3;ir++){
@@ -458,7 +458,7 @@ void verify_iic_write(u16 reg_addr,u8 *ptr,u8 len){
 		for(jr = 0;jr < len;jr++){
 			if(vytr[jr]!=ptr[jr]) {
 				ret = 1;
-				pr_err("%s: rror!  Data written and read do not correspond retry time:%d\n",__func__,ir);
+				pr_debug("%s: rror!  Data written and read do not correspond retry time:%d\n",__func__,ir);
 			}
 		}
 		if(ret == 0) return;
@@ -475,7 +475,7 @@ static int MT5715_handle(u16 flag)
 	int ret = 0;
 
 	//eol = find_next_bit((unsigned long *)&flag, sizeof(flag), 0);
-	pr_err("%s:flag = 0x%x, \n", __func__,flag);
+	pr_debug("%s:flag = 0x%x, \n", __func__,flag);
     irq_flag.value = flag;
 
 	if(irq_flag.ptr[0] & 0x02){//bit 1
@@ -495,33 +495,33 @@ static int MT5715_handle(u16 flag)
     val.ptr[1] = 0x28;
 	verify_iic_write( 0x0074, val.ptr, 2);//Increase the received power increase reported by RX to TX 750ma--1.2a is 2W.
 	msleep(5);
-	pr_err("%s:write 0x0074 addr  value: 0x%02x,0x%02x \n",__func__, val.ptr[0],val.ptr[1]);
+	pr_debug("%s:write 0x0074 addr  value: 0x%02x,0x%02x \n",__func__, val.ptr[0],val.ptr[1]);
 	
 	val.ptr[0] = 0x33;
     val.ptr[1] = 0x28;
 	verify_iic_write(0x0076, val.ptr, 2);//Increase the received power increase reported by RX to TX 750ma--1.2a is 2W.
-	pr_err("%s:write 0x0076 addr  value: 0x%02x,0x%02x \n",__func__, val.ptr[0],val.ptr[1]);
+	pr_debug("%s:write 0x0076 addr  value: 0x%02x,0x%02x \n",__func__, val.ptr[0],val.ptr[1]);
 	msleep(5);
 	val.ptr[0] = 0x31;
     val.ptr[1] = 0x28;
 	verify_iic_write( 0x0078, val.ptr, 2);//Increase the received power increase reported by RX to TX 750ma--1.2a is 2W.
-	pr_err("%s:write 0x0076 addr  value: 0x%02x,0x%02x \n",__func__, val.ptr[0],val.ptr[1]);
+	pr_debug("%s:write 0x0076 addr  value: 0x%02x,0x%02x \n",__func__, val.ptr[0],val.ptr[1]);
 	msleep(5);
     val.ptr[0] = 0x32;
     val.ptr[1] = 0x5E;
 	verify_iic_write( 0x007A, val.ptr, 2);//Increase the received power increase reported by RX to TX 750ma--1.2a is 2W.
-	pr_err("%s:write 0x007A addr  value: 0x%02x,0x%02x \n",__func__, val.ptr[0],val.ptr[1]);
+	pr_debug("%s:write 0x007A addr  value: 0x%02x,0x%02x \n",__func__, val.ptr[0],val.ptr[1]);
 //#endif
         mte->ldo_status = 1;
 		mte->is_samsung_charge =0;
 		mte->afc_count = 0;
-		pr_err("%s: INT_LDO_ON mte->ldo_status =%d mte->is_samsung_charge =%d\n" , __func__,mte->ldo_status,mte->is_samsung_charge);
+		pr_debug("%s: INT_LDO_ON mte->ldo_status =%d mte->is_samsung_charge =%d\n" , __func__,mte->ldo_status,mte->is_samsung_charge);
 	}
 	
     if(irq_flag.ptr[0] & 0x04){// bit 2
 		mte->ldo_status = 0;
 		mte->is_samsung_charge =0;
-		pr_err("%s: INT_LDO_OFF mte->ldo_status =%d mte->is_samsung_charge=%d\n" , __func__,mte->ldo_status,mte->is_samsung_charge);
+		pr_debug("%s: INT_LDO_OFF mte->ldo_status =%d mte->is_samsung_charge=%d\n" , __func__,mte->ldo_status,mte->is_samsung_charge);
 	}
 
 
@@ -529,7 +529,7 @@ static int MT5715_handle(u16 flag)
 
 		vuc val;
 
-		pr_err("%s: before step up 9V \n" , __func__);
+		pr_debug("%s: before step up 9V \n" , __func__);
 		schedule_delayed_work(&mte->check_work,300);
 		mte->is_samsung_charge = 1;
 
@@ -537,7 +537,7 @@ static int MT5715_handle(u16 flag)
 		mte->VrectFC = val.ptr[0] << 8 |  val.ptr[1];
 		schedule_delayed_work(&mte->check_afc_work,400);
 
-		pr_err("%s: after step up 9V \n" , __func__);
+		pr_debug("%s: after step up 9V \n" , __func__);
 	}
 	return ret;
 }
@@ -550,13 +550,13 @@ int MT5715_ldo_on(bool on)
 	vuc value;
 	int rc = 0;
 	int count = 3;//i2c err
-	pr_err("%s: mte->ldo_status = %d on = %d\n", __func__, mte->ldo_status, on);
+	pr_debug("%s: mte->ldo_status = %d on = %d\n", __func__, mte->ldo_status, on);
 
 	if (mte->ldo_status ^ on) {
 		do {
 			value.ptr[0] = 0x00;
 			value.ptr[1] = LDOTGL;
-			pr_err("%s: cmd, 0x%02x%02x, 0x%04x\n", __func__, value.ptr[0], value.ptr[1], value.value);
+			pr_debug("%s: cmd, 0x%02x%02x, 0x%04x\n", __func__, value.ptr[0], value.ptr[1], value.value);
 			rc = MT5715_write_buffer(mte, reg_access[CMD].addr, value.ptr, 2);
 			if (rc) 
 				continue;
@@ -574,17 +574,17 @@ void MT5715_irq_handle(void)
 	int count = 5;//new irq count, add error handling later
 	int ret = 0;
 
-	pr_err("enter %s:\n", __func__);
+	pr_debug("enter %s:\n", __func__);
 
 	while (count) {
 		flag = MT5715_irq_status(true);
 		if (flag > 0)
-		        pr_err("%s: read irq successful, flag = %x\n", __func__, flag);
+		        pr_debug("%s: read irq successful, flag = %x\n", __func__, flag);
 		else if (flag == 0) {
-		        pr_err("%s: no irq\n", __func__);
+		        pr_debug("%s: no irq\n", __func__);
 		        return;
 		} else {
-		        pr_err("%s: charger off\n", __func__);
+		        pr_debug("%s: charger off\n", __func__);
 		        return;
 		}
 
@@ -593,23 +593,23 @@ void MT5715_irq_handle(void)
 #if 1
 		flag_c = MT5715_irq_status(false);
 		if (flag_c == 0) {
-		        pr_err("%s: clear irq successful, flag = %x\n", __func__, flag_c);
+		        pr_debug("%s: clear irq successful, flag = %x\n", __func__, flag_c);
 		        return;
 		}
 		else if(flag_c > 0) {//new irq
-		        pr_err("%s: new irq occur, flag_c = %x\n", __func__, flag_c);
+		        pr_debug("%s: new irq occur, flag_c = %x\n", __func__, flag_c);
 		        if (flag ^ flag_c) {
 		                MT5715_handle(flag_c);
 		                count --;
-		                pr_err("%s: new irq occur, count = %d\n", __func__, count);
+		                pr_debug("%s: new irq occur, count = %d\n", __func__, count);
 		        }
 		        else {
-		                pr_err("%s: flag_c = %x, count = %d. same irq occur, clear fail!!!\n", __func__, flag_c, count);
+		                pr_debug("%s: flag_c = %x, count = %d. same irq occur, clear fail!!!\n", __func__, flag_c, count);
 		                break;
 		        }
 
 		} else {
-		        pr_err("%s: ic error, flag_c = %x\n", __func__, flag_c);
+		        pr_debug("%s: ic error, flag_c = %x\n", __func__, flag_c);
 		        return;
 		}
 #endif
@@ -633,14 +633,14 @@ static void MT5715_check_work(struct work_struct *work)
 	if(mte->is_samsung_charge == 1){
 		MT5715_read_buffer(mte,REG_VOUT,val.ptr,2);
 		rc = val.ptr[0] << 8 |  val.ptr[1];
-		pr_err("%s: vol read  vol=%d\n", __func__,rc);
+		pr_debug("%s: vol read  vol=%d\n", __func__,rc);
 		if(rc < 7500){
 			val.value = 9000;  // 9000  0x2328
 			fcflag = val.ptr[0]; //swap
 			val.ptr[0] = val.ptr[1];
 			val.ptr[1] = fcflag;  //0x2823
 			MT5715_write_buffer(mte, REG_VFC, val.ptr, 2);
-			pr_err("FC send data step up 9V : 0x%02x,0x%02x \n", val.ptr[0],val.ptr[1]);
+			pr_debug("FC send data step up 9V : 0x%02x,0x%02x \n", val.ptr[0],val.ptr[1]);
 			irq_flag.ptr[0] = 0x00;
 			irq_flag.ptr[1] = 0x10;
 			MT5715_write_buffer(mte, REG_CMD, irq_flag.ptr, 2);
@@ -650,16 +650,16 @@ static void MT5715_check_work(struct work_struct *work)
 		}
 	}else{
 		MT5715_read_buffer(mte,REG_INT_FLAG,val.ptr,2);
-		pr_err("%s: read irq status successful, 0x%02x%02x, 0x%04x is_samsung_charge=%d\n", __func__, val.ptr[0], val.ptr[1], val.value,mte->is_samsung_charge);
+		pr_debug("%s: read irq status successful, 0x%02x%02x, 0x%04x is_samsung_charge=%d\n", __func__, val.ptr[0], val.ptr[1], val.value,mte->is_samsung_charge);
 		if(val.ptr[0] & 0x01) {
 			//Clear interrupt
 			mte->is_samsung_charge =1;
-			pr_err("%s: set is_samsung_charge =%d\n", __func__,mte->is_samsung_charge);
+			pr_debug("%s: set is_samsung_charge =%d\n", __func__,mte->is_samsung_charge);
 			irq_flag.ptr[0] = 0x01;
 			irq_flag.ptr[1] = 0x00;
 			rc = MT5715_write_buffer(mte, reg_access[INTCTLR].addr, irq_flag.ptr, 2); 
 			if (rc){
-				pr_err("%s: clean irq fail rc =%d  step1\n", __func__,rc);
+				pr_debug("%s: clean irq fail rc =%d  step1\n", __func__,rc);
 				return;
 			}
 
@@ -668,7 +668,7 @@ static void MT5715_check_work(struct work_struct *work)
 			val.ptr[0] = val.ptr[1];
 			val.ptr[1] = fcflag;  //0x2823
 			MT5715_write_buffer(mte, REG_VFC, val.ptr, 2);
-			pr_err("FC send data step up 9V : 0x%02x,0x%02x \n", val.ptr[0],val.ptr[1]);
+			pr_debug("FC send data step up 9V : 0x%02x,0x%02x \n", val.ptr[0],val.ptr[1]);
 			irq_flag.ptr[0] = 0x00;
 			irq_flag.ptr[1] = 0x10 |CLRINT ;//prize modify by sunshuai  Put the 9V interrupt flag bit together with the 9V command   201900621
 			MT5715_write_buffer(mte, REG_CMD, irq_flag.ptr, 2);
@@ -684,14 +684,14 @@ static void MT5715_check_work(struct work_struct *work)
     	if(mte->is_samsung_charge == 1){//If the Samsung protocol plate boosts 9V fails, try again multiple boost 9V 201900621
 			MT5715_read_buffer(mte,REG_VOUT,val.ptr,2);
 		    rc = val.ptr[0] << 8 |  val.ptr[1];
-			pr_err("%s: vol read  vol=%d\n", __func__,rc);
+			pr_debug("%s: vol read  vol=%d\n", __func__,rc);
 			if(rc < 7500){
 				val.value = temp;  // 9000  0x2328
 		        fcflag = val.ptr[0]; //swap
 		        val.ptr[0] = val.ptr[1];
 		        val.ptr[1] = fcflag;  //0x2823
 		        MT5715_write_buffer(mte, REG_VFC, val.ptr, 2);
-		        pr_err("FC send data step up 9V : 0x%02x,0x%02x \n", val.ptr[0],val.ptr[1]);
+		        pr_debug("FC send data step up 9V : 0x%02x,0x%02x \n", val.ptr[0],val.ptr[1]);
 				irq_flag.ptr[0] = 0x00;
 				irq_flag.ptr[1] = 0x10  ;
 		        MT5715_write_buffer(mte, REG_CMD, irq_flag.ptr, 2);
@@ -709,7 +709,7 @@ static void MT5715_check_afc_work(struct work_struct *work)
 	MT5715_read_buffer(mte,REG_VOUT,val.ptr,2);
 	Vout_value = val.ptr[0] << 8 |  val.ptr[1];
 	if(Vout_value > 8000){
-		pr_err("%s: successful boosting\n", __func__);
+		pr_debug("%s: successful boosting\n", __func__);
 		return;
 	}
 	MT5715_read_buffer(mte,REG_VRECT,val.ptr,2);
@@ -718,7 +718,7 @@ static void MT5715_check_afc_work(struct work_struct *work)
 		val.ptr[0] = 0x23;
 		val.ptr[1] = 0x28;
 		MT5715_write_buffer(mte, REG_VOUTSET, val.ptr, 2);
-		pr_err("%s: Ap write LDO Vout,value: 0x%02x,0x%02x\n", __func__,val.ptr[0],val.ptr[1]);
+		pr_debug("%s: Ap write LDO Vout,value: 0x%02x,0x%02x\n", __func__,val.ptr[0],val.ptr[1]);
 		mte->afc_count = 0;
 		schedule_delayed_work(&mte->check_afc_work,600);
 	}else{
@@ -745,7 +745,7 @@ static void MT5715_check_afc_work(struct work_struct *work)
 static irqreturn_t MT5715_irq(int irq, void *data)
 {
     struct MT5715_dev *mt5715 = data;
-	pr_err("enter %s: \n", __func__);
+	pr_debug("enter %s: \n", __func__);
 	schedule_delayed_work(&mt5715->eint_work, 0);
     return IRQ_HANDLED;
 }
@@ -755,7 +755,7 @@ static int MT5715_parse_dt(struct i2c_client *client, struct MT5715_dev *mt5715)
 	int ret =0;
 	mt5715->dc_gpio = of_get_named_gpio(client->dev.of_node, "dc-gpio", 0);
 	if (mt5715->dc_gpio < 0) {
-		pr_err("%s: no dc gpio provided\n", __func__);
+		pr_debug("%s: no dc gpio provided\n", __func__);
 		return -1;
 	} else {
 		pr_info("%s: dc gpio provided ok. mt5715->dc_gpio = %d\n", __func__, mt5715->dc_gpio);
@@ -763,7 +763,7 @@ static int MT5715_parse_dt(struct i2c_client *client, struct MT5715_dev *mt5715)
 
 	mt5715->irq_gpio = of_get_named_gpio(client->dev.of_node, "irq-gpio", 0);
 	if (mt5715->irq_gpio < 0) {
-		pr_err("%s: no irq gpio provided.\n", __func__);
+		pr_debug("%s: no irq gpio provided.\n", __func__);
 		return -1;
 	} else {
 		pr_info("%s: irq gpio provided ok. mt5715->irq_gpio = %d\n", __func__, mt5715->irq_gpio);
@@ -830,12 +830,12 @@ void get_int_flag(void){
 	
 	 rc = MT5715_read_buffer(mte, reg_access[INT_FLAG].addr, irq_flag.ptr, 2);
 	 if (rc){
-			pr_err("%s: MT5715_read_buffer rc =%d \n", __func__,rc);
+			pr_debug("%s: MT5715_read_buffer rc =%d \n", __func__,rc);
 			val = 0;
 			return;
 	 }
 	 else {
-			pr_err("%s: read irq status successful, 0x%02x%02x, 0x%04x\n", __func__, irq_flag.ptr[0], irq_flag.ptr[1], irq_flag.value);
+			pr_debug("%s: read irq status successful, 0x%02x%02x, 0x%04x\n", __func__, irq_flag.ptr[0], irq_flag.ptr[1], irq_flag.value);
 			//val = irq_flag.ptr[0] << 8 | irq_flag.ptr[1];
 			ptr_temp = irq_flag.ptr[1];
 			
@@ -844,11 +844,11 @@ void get_int_flag(void){
 			if (irq_flag.ptr[0]== 0x01 && flag== true) {
 					rc = MT5715_ldo_status(true, &val);
 					if (!rc)
-						pr_err("%s: ldo = %d\n", __func__, val);
+						pr_debug("%s: ldo = %d\n", __func__, val);
 
 					val = 9000;
 					rc = MT5715_ldo_status(false, &val);
-					pr_err("%s: set ldo:%d, act ldo:%d\n", __func__, val, rc);
+					pr_debug("%s: set ldo:%d, act ldo:%d\n", __func__, val, rc);
 			}
 			return;
 	 }
@@ -935,7 +935,7 @@ static ssize_t chip_vout_store(struct device* dev, struct device_attribute* attr
     val.ptr[0] = val.ptr[1];
     val.ptr[1] = vptemp;
     MT5715_write_buffer(mte, REG_VOUTSET, val.ptr,2);
-    pr_err("Set Vout : %d \n", val.value);
+    pr_debug("Set Vout : %d \n", val.value);
 
     return count;
 }
@@ -966,7 +966,7 @@ int  fast_sv_no_samsung(int temp){
 //#endif
 	MT5715_read_buffer(mte,REG_VOUT,val.ptr,2);
     rc = val.ptr[0] << 8 |  val.ptr[1];
-	pr_err("%s: vol read  vol=%d\n", __func__,rc);
+	pr_debug("%s: vol read  vol=%d\n", __func__,rc);
 	
 	if(rc > 8000) {
 		return 1;
@@ -979,12 +979,12 @@ int  fast_sv_no_samsung(int temp){
 	    val.ptr[0] = val.ptr[1];
 	    val.ptr[1] = fcflag;  //0x2823
 	    MT5715_write_buffer(mte, REG_VFC, val.ptr, 2);
-	    pr_err("%s:FC send data step up 9V : 0x%02x,0x%02x \n",__func__, val.ptr[0],val.ptr[1]);
+	    pr_debug("%s:FC send data step up 9V : 0x%02x,0x%02x \n",__func__, val.ptr[0],val.ptr[1]);
 		val.ptr[0] = 0x00;
 		val.ptr[1] = 0x10;
 	    MT5715_write_buffer(mte, REG_CMD, val.ptr, 2);
 		
-	    pr_err("%s:fast_sv_no_samsung  step up REG_VFC 9V : 0x%02x,0x%02x \n", __func__,val.ptr[0],val.ptr[1]);
+	    pr_debug("%s:fast_sv_no_samsung  step up REG_VFC 9V : 0x%02x,0x%02x \n", __func__,val.ptr[0],val.ptr[1]);
 		return 0;
 	}   
     return 1;    
@@ -1001,7 +1001,7 @@ int  ldo_disable(void){
 	u8 fcflag;
 	ret = MT5715_read_buffer(mte,REG_VOUT,val.ptr,2);
 	if(ret){
-		pr_err("%s: MT5715_read_buffer REG_VOUT ret  =%d  \n", __func__,ret);
+		pr_debug("%s: MT5715_read_buffer REG_VOUT ret  =%d  \n", __func__,ret);
 		return (-1);
 	}
     voutval = val.ptr[0] << 8 |  val.ptr[1];
@@ -1010,7 +1010,7 @@ int  ldo_disable(void){
 		 val.ptr[1] = LDOTGL;
 		 ret = MT5715_write_buffer(mte, reg_access[CMD].addr, val.ptr, 2);
 		 if (ret){
-			pr_err("%s: MT5715_write_buffer ret =%d  step3\n", __func__,ret);
+			pr_debug("%s: MT5715_write_buffer ret =%d  step3\n", __func__,ret);
 			return (-1);
 		 }
 		 val.value = 3200;  // 
@@ -1021,14 +1021,14 @@ int  ldo_disable(void){
          val.ptr[1] = fcflag;  //
 		 ret = MT5715_write_buffer(mte, REG_VOUTSET,val.ptr, 2);// 
 		 if (ret){
-			pr_err("%s: MT5715_write_buffer ret =%d  step4\n", __func__,ret);
+			pr_debug("%s: MT5715_write_buffer ret =%d  step4\n", __func__,ret);
 			return (-1);
 		 }
 		
-		 pr_err("%s: sucess  ret =%d \n", __func__,ret);
+		 pr_debug("%s: sucess  ret =%d \n", __func__,ret);
 		 return 1;
 	}else{
-	    pr_err("%s: voutval < 2000  ret =%d \n", __func__,ret);
+	    pr_debug("%s: voutval < 2000  ret =%d \n", __func__,ret);
 		return 0; 
 	}
 }
@@ -1044,7 +1044,7 @@ int  get_mt5715_9V_charge_status(void){
 	lod_on_status = get_lod_status();
     MT5715_read_buffer(mte,REG_VOUT,val.ptr,2);
     rc = val.ptr[0] << 8 |  val.ptr[1];
-	pr_err("%s: vol read  vol=%d\n", __func__,rc);	
+	pr_debug("%s: vol read  vol=%d\n", __func__,rc);	
 	if((rc > 8000) && (lod_on_status == 1))
 		return 1;
 	else
@@ -1057,7 +1057,7 @@ EXPORT_SYMBOL(get_mt5715_9V_charge_status);
 //prize added by sunshuai, wireless charge MT5715  soft Raise the voltage to 9V, 20190307-end
 
 int get_is_samsung_charge (void){
-   pr_err("%s: is_samsung_charge %d\n", __func__, mte->is_samsung_charge);
+   pr_debug("%s: is_samsung_charge %d\n", __func__, mte->is_samsung_charge);
    return  mte->is_samsung_charge;
 }
 EXPORT_SYMBOL(get_is_samsung_charge);
@@ -1073,11 +1073,11 @@ void set_wireless_disable_flag(bool flag){
 	mte->full_bat_disable_wireless = flag;
 	if(flag == true){
 		disable_irq(gpio_to_irq(mte->irq_gpio));
-		pr_err("%s:  disable_irq\n", __func__);
+		pr_debug("%s:  disable_irq\n", __func__);
 	}
 	else{
 		enable_irq(gpio_to_irq(mte->irq_gpio));
-		pr_err("%s:  enable_irq\n", __func__);
+		pr_debug("%s:  enable_irq\n", __func__);
 	}
 	printk("%s:  flag =%s\n", __func__,flag == true ?"true":"false");
 }
@@ -1091,18 +1091,18 @@ int  fast_sv(int temp){
 	int rc;
 	//u8  fcflag;
 	MT5715_read_buffer(mte,REG_INT_FLAG,val.ptr,2);
-	pr_err("%s: read irq status successful, 0x%02x%02x, 0x%04x is_samsung_charge=%d\n", __func__, val.ptr[0], val.ptr[1], val.value,mte->is_samsung_charge);
+	pr_debug("%s: read irq status successful, 0x%02x%02x, 0x%04x is_samsung_charge=%d\n", __func__, val.ptr[0], val.ptr[1], val.value,mte->is_samsung_charge);
 
 	
     if(val.ptr[0] & 0x01) {
 		//Clear interrupt
 		mte->is_samsung_charge =1;
-		pr_err("%s: set is_samsung_charge =%d\n", __func__,mte->is_samsung_charge);
+		pr_debug("%s: set is_samsung_charge =%d\n", __func__,mte->is_samsung_charge);
 		irq_flag.ptr[0] = 0x01;
 		irq_flag.ptr[1] = 0x00;
 		rc = MT5715_write_buffer(mte, reg_access[INTCTLR].addr, irq_flag.ptr, 2); 
 		if (rc){
-			pr_err("%s: clean irq fail rc =%d  step1\n", __func__,rc);
+			pr_debug("%s: clean irq fail rc =%d  step1\n", __func__,rc);
 			return (-1);
 		}
 		irq_flag.ptr[1] = CLRINT ;//prize modify by sunshuai  Put the 9V interrupt flag bit together with the 9V command   201900621
@@ -1115,7 +1115,7 @@ int  fast_sv(int temp){
 
     MT5715_read_buffer(mte,REG_VOUT,val.ptr,2);
     rc = val.ptr[0] << 8 |  val.ptr[1];
-	pr_err("%s: vol read  vol=%d\n", __func__,rc);
+	pr_debug("%s: vol read  vol=%d\n", __func__,rc);
 	
 	if(rc > 8000) return 1;
 	else          return 0;
@@ -1133,13 +1133,13 @@ static ssize_t fast_charging_store(struct device* dev, struct device_attribute* 
     int error;
     unsigned int temp;
     //u8  fcflag;
-	pr_err("enter fast_charging_store \n");
+	pr_debug("enter fast_charging_store \n");
 	
     error = kstrtouint(buf, 10, &temp);//"9000"
     if (error)
         return error;
     if( (temp < 0) ||( temp > 20000)) {
-        pr_err(" Parameter error\n");
+        pr_debug(" Parameter error\n");
         return count;
     }
 	fast_sv(temp);
@@ -1151,7 +1151,7 @@ static ssize_t fast_charging_store(struct device* dev, struct device_attribute* 
         val.ptr[0] = val.ptr[1];
         val.ptr[1] = fcflag;  //0x2823
         MT5715_write_buffer(mte, REG_VFC, val.ptr, 2);
-        pr_err("FC send data : 0x%02x,0x%02x \n", val.ptr[0],val.ptr[1]);
+        pr_debug("FC send data : 0x%02x,0x%02x \n", val.ptr[0],val.ptr[1]);
 		val.ptr[0] = 0x00;
 		val.ptr[1] = 0x10;
         MT5715_write_buffer(mte, REG_CMD, val.ptr, 2);
@@ -1159,7 +1159,7 @@ static ssize_t fast_charging_store(struct device* dev, struct device_attribute* 
        // MT5715_read_buffer(mte,REG_VFC,val.ptr,2);
        // pr_debug("FC read data : 0x%02x,0x%02x \n", val.ptr[0],val.ptr[1]);
     } else {
-        pr_err("Fast charging is not supported \n");
+        pr_debug("Fast charging is not supported \n");
     }*/
     return count;
 }
@@ -1216,10 +1216,10 @@ int confirm_MT5715_works(void)
 	while(count--){
 		rc = MT5715_read_buffer(mte, REG_CHIPID, chips.ptr,2);
 		if(rc){
-			pr_err("%s: IIC failed  \n",__func__);
+			pr_debug("%s: IIC failed  \n",__func__);
 		}else{
 			if((chips.ptr[0] == 0x57)&&(chips.ptr[1] == 0x15)){
-				pr_err("%s: chipID : %02x%02x \n",__func__,chips.ptr[0],chips.ptr[1]);
+				pr_debug("%s: chipID : %02x%02x \n",__func__,chips.ptr[0],chips.ptr[1]);
 				return 1;
 			}
 		}
@@ -1236,7 +1236,7 @@ static int MT5715_probe(struct i2c_client *client, const struct i2c_device_id *i
     int irq_flags = 0;
     int rc = 0;
 
-    pr_err("MT5715 probe.\n");
+    pr_debug("MT5715 probe.\n");
     chip = devm_kzalloc(&client->dev, sizeof(*chip), GFP_KERNEL);
     if (!chip)
         return -ENOMEM;
@@ -1244,13 +1244,13 @@ static int MT5715_probe(struct i2c_client *client, const struct i2c_device_id *i
     //wake_lock_init(&chip->wakelock, WAKE_LOCK_SUSPEND, "wireless charger suspend wakelock");
     mutex_init(&chip->slock);
 
-    pr_err("MT5715 chip.\n");
+    pr_debug("MT5715 chip.\n");
     chip->regmap = regmap_init_i2c(client, &MT5715_regmap_config);
     if (!chip->regmap) {
-        pr_err("parent regmap is missing\n");
+        pr_debug("parent regmap is missing\n");
         return -EINVAL;
     }
-    pr_err("MT5715 regmap.\n");
+    pr_debug("MT5715 regmap.\n");
 	
     chip->client = client;
     chip->dev = &client->dev;
@@ -1264,7 +1264,7 @@ static int MT5715_probe(struct i2c_client *client, const struct i2c_device_id *i
     
     sysfs_create_group(&client->dev.kobj, &mt5715_sysfs_group);
  
-    pr_err("MT5715 probed successfully\n");
+    pr_debug("MT5715 probed successfully\n");
 
     mte = chip;
 	mte->is_samsung_charge =0;
@@ -1277,7 +1277,7 @@ static int MT5715_probe(struct i2c_client *client, const struct i2c_device_id *i
 //#endif
     rc = MT5715_parse_dt(client, chip);
     if (rc ) {
-    	pr_err("%s: failed to parse device tree node\n", __func__);
+    	pr_debug("%s: failed to parse device tree node\n", __func__);
         chip->dc_gpio = -1;
         chip->irq_gpio = -1;
     }
@@ -1286,18 +1286,18 @@ static int MT5715_probe(struct i2c_client *client, const struct i2c_device_id *i
         rc = devm_gpio_request_one(&client->dev, chip->dc_gpio,
               GPIOF_DIR_IN, "mt5715_dc");
         if (rc){
-              pr_err("%s: dc_gpio request failed\n", __func__);
+              pr_debug("%s: dc_gpio request failed\n", __func__);
               goto err;
         }
     } else {
-		pr_err("%s: dc_gpio %d is invalid\n", __func__, chip->dc_gpio);
+		pr_debug("%s: dc_gpio %d is invalid\n", __func__, chip->dc_gpio);
     }
 
     if (gpio_is_valid(chip->irq_gpio)) {
         rc = devm_gpio_request_one(&client->dev, chip->irq_gpio,
               GPIOF_DIR_IN, "mt5715_int");
         if (rc) {
-              pr_err("%s: irq_gpio request failed\n", __func__);
+              pr_debug("%s: irq_gpio request failed\n", __func__);
               goto err;
         }
 
@@ -1307,16 +1307,16 @@ static int MT5715_probe(struct i2c_client *client, const struct i2c_device_id *i
                           NULL, MT5715_irq, irq_flags,
                           "mt5715", chip);
         if (rc != 0) {
-              pr_err("failed to request IRQ %d: %d\n",
+              pr_debug("failed to request IRQ %d: %d\n",
                           gpio_to_irq(chip->irq_gpio), rc);
               goto err;
         }
-		pr_err("sucess to request IRQ %d: %d\n",
+		pr_debug("sucess to request IRQ %d: %d\n",
                           gpio_to_irq(chip->irq_gpio), rc);
 
 		//start add by sunshuai
 		if(!(gpio_get_value(mte->irq_gpio))){
-			pr_err("%s The interruption has come \n", __func__);
+			pr_debug("%s The interruption has come \n", __func__);
 			MT5715_irq_handle();			
 		}
 		//end   add by sunshuai
@@ -1326,9 +1326,9 @@ static int MT5715_probe(struct i2c_client *client, const struct i2c_device_id *i
 
     //MT5715_read_buffer(mte, REG_CHIPID, chipid.ptr,2);
     //if(chipid.value == MT5715ID){
-	//	pr_err("ID Correct query\n");
+	//	pr_debug("ID Correct query\n");
 	//} else {
-	//	pr_err("ID error :%d\n ", chipid.value);
+	//	pr_debug("ID error :%d\n ", chipid.value);
 	//}
 
 	is_5715_probe_done = 1;
