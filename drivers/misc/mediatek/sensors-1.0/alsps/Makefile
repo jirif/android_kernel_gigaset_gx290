@@ -13,3 +13,5 @@ obj-$(CONFIG_MTK_STK3X3X)	+=  stk3x3x/
 #prize-add sensor-pengzhipeng-20190419-start
 obj-$(CONFIG_MTK_STK3332_V2000)	+=  stk3332_v2000/
 #prize-add sensor-pengzhipeng-20190419-end
+
+obj-$(CONFIG_MTK_STK3332SV)   +=  stk3332sv/

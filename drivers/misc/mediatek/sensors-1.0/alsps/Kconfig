@@ -23,3 +23,4 @@ source "drivers/misc/mediatek/sensors-1.0/alsps/stk3x3x/Kconfig"
 #prize-add sensor-pengzhipeng-20190419-start
 source "drivers/misc/mediatek/sensors-1.0/alsps/stk3332_v2000/Kconfig"
 #prize-add sensor-pengzhipeng-20190419-end
+source "drivers/misc/mediatek/sensors-1.0/alsps/stk3332sv/Kconfig"
