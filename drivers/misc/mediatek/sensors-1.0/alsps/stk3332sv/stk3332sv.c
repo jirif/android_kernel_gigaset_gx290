@@ -2974,6 +2974,14 @@ static int stk3x3x_get_als_value(struct stk3x3x_priv *obj, u16 als)
 {
 	int idx;
 	int invalid = 0;
+	int level_high = 0;
+	int level_low  = 0;
+	int level_diff = 0;
+	int value_high = 0;
+	int value_low  = 0;
+	int value_diff = 0;
+	int value = -1;
+
 
 	for (idx = 0; idx < obj->als_level_num; idx++)
 	{
@@ -3011,7 +3019,21 @@ static int stk3x3x_get_als_value(struct stk3x3x_priv *obj, u16 als)
 			APS_DBG("ALS: %05d => %05d\n", als, obj->hw.als_value[idx]);
 		}
 
-		return obj->hw.als_value[idx];
+		level_high = obj->hw.als_level[idx];
+		level_low = (idx > 0) ? obj->hw.als_level[idx-1] : 0;
+		level_diff = level_high - level_low;
+		value_high = obj->hw.als_value[idx];
+		value_low = (idx > 0) ? obj->hw.als_value[idx-1] : 0;
+		value_diff = value_high - value_low;
+
+		if ((level_low >= level_high) || (value_low >= value_high))
+                {
+			value = value_low;
+                }
+		else
+		{
+			value = value_diff * (als - level_low) / level_diff + value_low;
+		}
 	}
 	else
 	{
@@ -3019,9 +3041,9 @@ static int stk3x3x_get_als_value(struct stk3x3x_priv *obj, u16 als)
 		{
 			APS_DBG("ALS: %05d => %05d (-1)\n", als, obj->hw.als_value[idx]);
 		}
-
-		return -1;
 	}
+
+	return value;
 }
 
 static int stk3x3x_get_ps_value_only(struct stk3x3x_priv *obj, u16 ps)
