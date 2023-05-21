@@ -18,7 +18,7 @@
 extern struct hardware_info current_coulo_info;
 #endif
 
-#define CWFG_ENABLE_LOG 1 //CHANGE   Customer need to change this for enable/disable log
+#define CWFG_DISABLE_LOG 1 //CHANGE   Customer need to change this for enable/disable log
 
 #if defined(CONFIG_PROJECT_KOOBEE_K6503Q) || defined(CONFIG_PROJECT_KOOBEE_K6072) || defined(CONFIG_PROJECT_KOOBEE_K605) || defined(CONFIG_PROJECT_KOOBEE_K6302)
 #define CWFG_I2C_BUSNUM 0
@@ -67,7 +67,7 @@ extern struct hardware_info current_coulo_info;
 
 #define cw_printk(flg, fmt, arg...)        \
 	({                                    \
-		if(flg >= CWFG_ENABLE_LOG){\
+		if(flg >= CWFG_DISABLE_LOG){\
 			printk("FG_CW2015 : %s : " fmt, __FUNCTION__ ,##arg);\
 		}else{}                           \
 	})     //need check by Chaman
@@ -209,10 +209,8 @@ int cw_update_config_info(struct cw_battery *cw_bat)
     int i;
     unsigned char reset_val;
 
-    cw_printk(1,"\n");
-    cw_printk(1,"[FGADC] test config_info = 0x%x\n",config_info[0]);
-    printk(KERN_ERR"%s\n", __func__);
-    
+    cw_printk(0,"[FGADC] test config_info = 0x%x\n",config_info[0]);
+
     // make sure no in sleep mode
     ret = cw_read(cw_bat->client, REG_MODE, &reg_val);
     if(ret < 0) {
@@ -226,7 +224,7 @@ int cw_update_config_info(struct cw_battery *cw_bat)
 
     // update new battery info
     for (i = 0; i < SIZE_BATINFO; i++) {
-        printk(KERN_ERR"%X\n", config_info[i]);
+	cw_printk(0,"%X\n", config_info[i]);
         ret = cw_write(cw_bat->client, REG_BATINFO + i, &config_info[i]);
         if(ret < 0)
             return ret;
@@ -245,12 +243,12 @@ int cw_update_config_info(struct cw_battery *cw_bat)
         return ret;
 
     if (!(reg_val & CONFIG_UPDATE_FLG)) {
-        printk("Error: The new config set fail\n");
+	cw_printk(1,"Error: The new config set fail\n");
         //return -1;
     }
 
     if ((reg_val & 0xf8) != ATHD) {
-        printk("Error: The new ATHD set fail\n");
+	cw_printk(1,"Error: The new ATHD set fail\n");
         //return -1;
     }
 
@@ -265,7 +263,7 @@ int cw_update_config_info(struct cw_battery *cw_bat)
     ret = cw_write(cw_bat->client, REG_MODE, &reset_val);
     if(ret < 0) return ret;
     
-    cw_printk(1,"cw2015 update config success!\n");
+    cw_printk(0,"cw2015 update config success!\n");
     
     return 0;
 }
@@ -301,10 +299,10 @@ static int cw_init(struct cw_battery *cw_bat)
         return ret;
 
     if (!(reg_val & CONFIG_UPDATE_FLG)) {
-        cw_printk(1,"update config flg is true, need update config\n");
+        cw_printk(0,"update config flg is true, need update config\n");
         ret = cw_update_config_info(cw_bat);
         if (ret < 0) {
-            printk("%s : update config fail\n", __func__);
+	    cw_printk(1,"update config fail\n");
             return ret;
         }
     } else {
@@ -318,7 +316,7 @@ static int cw_init(struct cw_battery *cw_bat)
                 break;
         }
         if (i != SIZE_BATINFO) {
-            cw_printk(1,"config didn't match, need update config\n");
+            cw_printk(0,"config didn't match, need update config\n");
             ret = cw_update_config_info(cw_bat);
             if (ret < 0){
                 return ret;
@@ -339,7 +337,7 @@ static int cw_init(struct cw_battery *cw_bat)
     if (i >= 30 ){
          reg_val = MODE_SLEEP;
          ret = cw_write(cw_bat->client, REG_MODE, &reg_val);
-         cw_printk(1,"cw2015 input unvalid power error, cw2015 join sleep mode\n");
+         cw_printk(0,"cw2015 input unvalid power error, cw2015 join sleep mode\n");
          return -1;
     }
 
@@ -415,12 +413,12 @@ static int get_charge_state(void)
                 ac_online = val.intval;			
 		}
 		if(!chrg_usb_psy){
-			cw_printk(1,"Usb online didn't find\n");
+			cw_printk(0,"Usb online didn't find\n");
 		}
 		if(!chrg_ac_psy){
-			cw_printk(1,"Ac online didn't find\n");
+			cw_printk(0,"Ac online didn't find\n");
 		}
-		cw_printk(1,"ac_online = %d    usb_online = %d\n", ac_online, usb_online);
+		cw_printk(0,"ac_online = %d    usb_online = %d\n", ac_online, usb_online);
 		if(ac_online || usb_online){
 			return 1;
 		}
@@ -495,7 +493,7 @@ static int cw_get_capacity(struct cw_battery *cw_bat)
 	
 	ret = cw_read_word(cw_bat->client, REG_SOC, reg_val);
 	if (ret < 0){
-		printk("pzp cw_bat->capacity=%d\n", cw_bat->capacity);
+		cw_printk(0,"pzp cw_bat->capacity=%d\n", cw_bat->capacity);
 		return ret;
 	}
 	
@@ -519,7 +517,7 @@ static int cw_get_capacity(struct cw_battery *cw_bat)
         ret = cw_write(cw_bat->client, REG_CONFIG, &temp_val);
 		if (ret < 0) 
 			return ret;
-		printk("pzp low temper  set ATHD  cw_bat->capacity=%d\n", cw_bat->capacity);
+		cw_printk(0,"pzp low temper  set ATHD  cw_bat->capacity=%d\n", cw_bat->capacity);
 
 	}
 	
@@ -551,7 +549,7 @@ static int cw_get_capacity(struct cw_battery *cw_bat)
 			if (ret < 0) 
 				return ret;
 			cw_capacity = reg_val[0];
-			printk("pzp low temper cw_bat->capacity=%d\n", cw_bat->capacity);
+			cw_printk(0,"pzp low temper cw_bat->capacity=%d\n", cw_bat->capacity);
 		}
 		
 	}
@@ -560,7 +558,7 @@ static int cw_get_capacity(struct cw_battery *cw_bat)
 		return cw_bat->capacity;
 	//printk("pzp cw_capacity = %d temperature=%d\n", cw_capacity, temperature);
 	if ((cw_capacity < 0) || (cw_capacity > 100)) {
-		cw_printk(1,"Error:  cw_capacity = %d\n", cw_capacity);
+		cw_printk(0,"Error:  cw_capacity = %d\n", cw_capacity);
 		reset_loop++;			
 		if (reset_loop > (BATTERY_CAPACITY_ERROR / queue_delayed_work_time)){ 
 			cw_por(cw_bat);
@@ -588,7 +586,7 @@ static int cw_get_capacity(struct cw_battery *cw_bat)
 	
 	/* case 2 : aviod no charge full */
 	if ((cw_bat->charger_mode > 0) && (cw_capacity >= 95) && (cw_capacity <= cw_bat->capacity)) {
-		cw_printk(1,"Chaman join no charge full\n");
+		cw_printk(0,"Chaman join no charge full\n");
 		charging_loop++;	
 		if (charging_loop > (BATTERY_UP_MAX_CHANGE / queue_delayed_work_time) ){
 			cw_capacity = (cw_bat->capacity + 1) <= 100 ? (cw_bat->capacity + 1) : 100; 
@@ -601,12 +599,12 @@ static int cw_get_capacity(struct cw_battery *cw_bat)
 
 	/*case 3 : avoid battery level jump to CW_BAT */
 	if ((cw_bat->charger_mode == 0) && (cw_capacity <= cw_bat->capacity ) && (cw_capacity >= 90) && (jump_flag == 1)) {
-		cw_printk(1,"Chaman join no charge full discharging\n");
+		cw_printk(0,"Chaman join no charge full discharging\n");
 		#ifdef CONFIG_PM
 		if(suspend_resume_mark == 1){
 			suspend_resume_mark = 0;
 			sleep_cap = (after.tv_sec + discharging_loop * (queue_delayed_work_time / 1000))/ (BATTERY_DOWN_MAX_CHANGE/1000) ;
-			cw_printk(1,"sleep_cap = %d\n", sleep_cap);
+			cw_printk(0,"sleep_cap = %d\n", sleep_cap);
 			
 			if(cw_capacity >= cw_bat->capacity - sleep_cap) {
 				return cw_capacity;
@@ -615,7 +613,7 @@ static int cw_get_capacity(struct cw_battery *cw_bat)
 					discharging_loop = discharging_loop + 1 + after.tv_sec / (queue_delayed_work_time/1000);
 				else
 					discharging_loop = 0;
-				cw_printk(1,"discharging_loop = %d\n", discharging_loop);
+				cw_printk(0,"discharging_loop = %d\n", discharging_loop);
 				return cw_bat->capacity - sleep_cap;
 			}
 		}
@@ -642,7 +640,7 @@ static int cw_get_capacity(struct cw_battery *cw_bat)
 			charging_5_loop = 0;
 		}
 		cw_capacity=1;//fucehou keep 1% charge status
-		cw_printk(1,"keep soc 1 charging\n");
+		cw_printk(0,"keep soc 1 charging\n");
 	}else if(charging_5_loop != 0){
 		charging_5_loop = 0;
 	}
@@ -845,7 +843,7 @@ static void cw_bat_work(struct work_struct *work)
 		cw_update_charge_status(cw_bat);
 		cw_update_status(cw_bat);
 		cw_update_time_to_empty(cw_bat);
-	cw_printk(1,"charger_mod = %d, status = %d, capacity = %d, voltage = %d\n", cw_bat->charger_mode, cw_bat->status, cw_bat->capacity, cw_bat->voltage);
+	cw_printk(0,"charger_mod = %d, status = %d, capacity = %d, voltage = %d\n", cw_bat->charger_mode, cw_bat->status, cw_bat->capacity, cw_bat->voltage);
 
 	#ifdef CONFIG_PM
 	if(suspend_resume_mark == 1)
@@ -1087,11 +1085,10 @@ static int cw2015_probe(struct i2c_client *client, const struct i2c_device_id *i
 #endif
 #endif
     //struct device *dev;
-	cw_printk(1,"\n");
 
     cw_bat = devm_kzalloc(&client->dev, sizeof(*cw_bat), GFP_KERNEL);
     if (!cw_bat) {
-		cw_printk(1,"cw_bat create fail!\n");
+		cw_printk(0,"cw_bat create fail!\n");
         return -ENOMEM;
     }
 
@@ -1165,7 +1162,7 @@ static int cw2015_probe(struct i2c_client *client, const struct i2c_device_id *i
         ret = cw_init(cw_bat);
     }
     if (ret) {
-		printk("%s : cw2015 init fail!\n", __func__);
+		cw_printk(1,"cw2015 init fail!\n");
         return ret;	
     }
 
@@ -1195,7 +1192,7 @@ static int cw2015_probe(struct i2c_client *client, const struct i2c_device_id *i
 	cw_bat->cw_bat = power_supply_register(&client->dev, psy_desc, &psy_cfg);
 	if(IS_ERR(cw_bat->cw_bat)) {
 		ret = PTR_ERR(cw_bat->cw_bat);
-	    printk(KERN_ERR"failed to register battery: %d\n", ret);
+	    cw_printk(1, "failed to register battery: %d\n", ret);
 	    return ret;
 	}
 #endif
@@ -1211,7 +1208,7 @@ static int cw2015_probe(struct i2c_client *client, const struct i2c_device_id *i
 		strcpy(current_coulo_info.more,"coulombmeter");
 	#endif
 	cw2015_exit_flag = 1;
-	cw_printk(1,"cw2015 driver probe success!\n");
+	cw_printk(0,"cw2015 driver probe success!\n");
     return 0;
 }
 
@@ -1253,7 +1250,6 @@ static const struct dev_pm_ops cw_bat_pm_ops = {
 
 static int cw2015_remove(struct i2c_client *client)	 
 {
-	cw_printk(1,"\n");
 	return 0;
 }
 
@@ -1305,7 +1301,6 @@ static int __init cw215_init(void)
 #if !defined(CONFIG_MTK_CW2015_SUPPORT_OF)
 	struct i2c_client *client;
 	struct i2c_adapter *i2c_adp;
-	cw_printk(1,"\n");
 
     //i2c_register_board_info(CWFG_I2C_BUSNUM, &fgadc_dev, 1);
 	i2c_adp = i2c_get_adapter(CWFG_I2C_BUSNUM);

@@ -2378,11 +2378,11 @@ void switch_uart_gpio(int uartport, int gpioopid)
 
 	if (IS_ERR(pins_uart)) {
 		if (__ratelimit(&ratelimit)) {
-			pr_notice("[UART%d][PinC]%s", uartport, __func__);
-			pr_notice("pinctrl_lockup(%d, %s) fail!!",
+			pr_debug("[UART%d][PinC]%s", uartport, __func__);
+			pr_debug("pinctrl_lockup(%d, %s) fail!!",
 				uartport,
 				uart_gpio_cmds[uartport][gpioopid]);
-			pr_notice("pctrl:%p, err:%ld\n",
+			pr_debug("pctrl:%p, err:%ld\n",
 				ppinctrl, PTR_ERR(pins_uart));
 		}
 		return;

@@ -519,7 +519,7 @@ static int hps_suspend(struct device *dev)
 {
 	int ret = 0;
 
-	hps_warn("%s\n", __func__);
+	hps_debug("%s\n", __func__);
 
 	if (!hps_ctxt.suspend_enabled)
 		goto suspend_end;
@@ -530,7 +530,7 @@ suspend_end:
 	if (hps_ctxt.periodical_by == HPS_PERIODICAL_BY_HR_TIMER)
 		ret = hps_del_timer();
 #endif
-	hps_warn
+	hps_debug
 ("state:%u,enabled:%u,suspend_enabled:%u,rush_boost_enabled:%u,ret:%d\n",
 		 hps_ctxt.state, hps_ctxt.enabled,
 		 hps_ctxt.suspend_enabled, hps_ctxt.rush_boost_enabled, ret);
@@ -542,7 +542,7 @@ suspend_end:
  */
 static int hps_resume(struct device *dev)
 {
-	hps_warn("%s\n", __func__);
+	hps_debug("%s\n", __func__);
 
 	if (!hps_ctxt.suspend_enabled)
 		goto resume_end;
@@ -569,7 +569,7 @@ resume_end:
 		hps_restart_timer();
 	}
 #endif
-	hps_warn
+	hps_debug
 ("state: %u, enabled: %u, suspend_enabled: %u, rush_boost_enabled: %u\n",
 		 hps_ctxt.state, hps_ctxt.enabled,
 		 hps_ctxt.suspend_enabled, hps_ctxt.rush_boost_enabled);

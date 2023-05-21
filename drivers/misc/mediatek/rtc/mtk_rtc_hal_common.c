@@ -39,6 +39,9 @@
 #define hal_rtc_xinfo(fmt, args...)		\
 		pr_notice(fmt, ##args)
 
+#define hal_rtc_xdebug(fmt, args...)           \
+               pr_debug(fmt, ##args)
+
 u16 rtc_read(u16 addr)
 {
 	u32 rdata = 0;
@@ -117,7 +120,7 @@ void hal_rtc_set_spare_register(enum rtc_spare_enum cmd, u16 val)
 	u16 tmp_val;
 
 	if ((int)cmd >= 0 && cmd < RTC_SPAR_NUM) {
-		hal_rtc_xinfo("%s: cmd[%d], set rg[0x%x, 0x%x , %d] = 0x%x\n",
+		hal_rtc_xdebug("%s: cmd[%d], set rg[0x%x, 0x%x , %d] = 0x%x\n",
 				__func__, cmd,
 				rtc_spare_reg[cmd][RTC_REG],
 				rtc_spare_reg[cmd][RTC_MASK],
@@ -146,7 +149,7 @@ u16 hal_rtc_get_spare_register(enum rtc_spare_enum cmd)
 		    (tmp_val >> rtc_spare_reg[cmd][RTC_SHIFT]) &
 		    rtc_spare_reg[cmd][RTC_MASK];
 
-		hal_rtc_xinfo("%s: cmd[%d], get rg[0x%x, 0x%x , %d] = 0x%x\n",
+		hal_rtc_xdebug("%s: cmd[%d], get rg[0x%x, 0x%x , %d] = 0x%x\n",
 				__func__, cmd,
 				rtc_spare_reg[cmd][RTC_REG],
 				rtc_spare_reg[cmd][RTC_MASK],
@@ -206,7 +209,7 @@ void hal_rtc_get_alarm_time(struct rtc_time *tm)
 
 void hal_rtc_set_alarm_time(struct rtc_time *tm)
 {
-	hal_rtc_xinfo("mon = %d, day = %d, hour = %d\n",
+	hal_rtc_xdebug("mon = %d, day = %d, hour = %d\n",
 		      (rtc_read(RTC_AL_MTH) & ~(RTC_AL_MTH_MASK)) |
 		      (unsigned int)tm->tm_mon,
 		      (rtc_read(RTC_AL_DOM) & ~(RTC_AL_DOM_MASK)) |

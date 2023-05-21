@@ -39,6 +39,9 @@
 #define hal_rtc_xinfo(fmt, args...)		\
 	pr_notice(fmt, ##args)
 
+#define hal_rtc_xdebug(fmt, args...)   \
+       pr_debug(fmt, ##args)
+
 /*TODO extern bool pmic_chrdet_status(void);*/
 
 /*
@@ -325,13 +328,13 @@ bool hal_rtc_is_pwron_alarm(struct rtc_time *nowtm, struct rtc_time *tm)
 	u16 pdn1;
 
 	pdn1 = rtc_read(RTC_PDN1);
-	hal_rtc_xinfo("pdn1 = 0x%4x\n", pdn1);
+	hal_rtc_xdebug("pdn1 = 0x%4x\n", pdn1);
 
 	if (pdn1 & RTC_PDN1_PWRON_TIME) {	/* power-on time is available */
 
-		hal_rtc_xinfo("pdn1 = 0x%4x\n", pdn1);
+		hal_rtc_xdebug("pdn1 = 0x%4x\n", pdn1);
 		hal_rtc_get_tick_time(nowtm);
-		hal_rtc_xinfo("pdn1 = 0x%4x\n", pdn1);
+		hal_rtc_xdebug("pdn1 = 0x%4x\n", pdn1);
 		/* SEC has carried */
 		if (rtc_read(RTC_TC_SEC) < nowtm->tm_sec)
 			hal_rtc_get_tick_time(nowtm);

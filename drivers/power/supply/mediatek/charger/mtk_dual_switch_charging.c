@@ -498,8 +498,8 @@ dual_swchg_select_charging_current_limit(struct charger_manager *info)
 			pdata->charging_current_limit = 1000000;
 		}
 	}
-	printk("PRIZE master  charge current %d:%d\n",pdata->input_current_limit,pdata->charging_current_limit);
-	printk("PRIZE slave   charge current %d:%d\n",pdata2->input_current_limit,pdata2->charging_current_limit);
+	pr_debug("PRIZE master  charge current %d:%d\n",pdata->input_current_limit,pdata->charging_current_limit);
+	pr_debug("PRIZE slave   charge current %d:%d\n",pdata2->input_current_limit,pdata2->charging_current_limit);
 
 #endif
 //prize add by sunshuai for Bright screen current limit  20181130 end
@@ -613,7 +613,7 @@ done:
 		pdata2->input_current_limit = pdata2->input_current_limit / 2;
 	}
 
-	pr_notice("force:%d %d thermal:(%d %d,%d %d)(%d %d %d)setting:(%d %d)(%d %d)",
+	pr_debug("force:%d %d thermal:(%d %d,%d %d)(%d %d %d)setting:(%d %d)(%d %d)",
 		_uA_to_mA(pdata->force_charging_current),
 		_uA_to_mA(pdata2->force_charging_current),
 		_uA_to_mA(pdata->thermal_input_current_limit),
@@ -628,7 +628,7 @@ done:
 		_uA_to_mA(pdata2->input_current_limit),
 		_uA_to_mA(pdata2->charging_current_limit));
 
-	pr_notice("type:%d usb_unlimited:%d usbif:%d usbsm:%d aicl:%d atm:%d parallel:%d\n",
+	pr_debug("type:%d usb_unlimited:%d usbif:%d usbsm:%d aicl:%d atm:%d parallel:%d\n",
 		info->chr_type, info->usb_unlimited,
 		IS_ENABLED(CONFIG_USBIF_COMPLIANCE), info->usb_state,
 		_uA_to_mA(pdata->input_current_limit_by_aicl),
@@ -876,7 +876,7 @@ static void dual_swchg_turn_on_charging(struct charger_manager *info)
 		}
 	}
 
-	chr_err("chg1:%d chg2:%d chg2_chip_en:%d\n", chg1_enable, chg2_enable,
+	chr_debug("chg1:%d chg2:%d chg2_chip_en:%d\n", chg1_enable, chg2_enable,
 		chg2_chip_enabled);
 }
 
@@ -1548,16 +1548,16 @@ static int MT5715_wlc_parse_dts(struct charger_manager *info){
 	int *current_input;
 	int *current_output;
 
-    chr_err("MT5715_wlc_parse_dts\n");//prize modify by sunshuai, Optimized log 20190316
-	
+	chr_debug("MT5715_wlc_parse_dts\n");//prize modify by sunshuai, Optimized log 20190316
+
 	if (np != NULL){
 		if (!of_property_read_u32(np, "MT5715_wlc_cur_step_num", &MT5715_wlc_info.cur_step_pattern_num)) {
-			chr_err("MT5715 WLC cur_step_pattern_num %d\n",MT5715_wlc_info.cur_step_pattern_num);
+			chr_debug("MT5715 WLC cur_step_pattern_num %d\n",MT5715_wlc_info.cur_step_pattern_num);
 		}else{
 			MT5715_wlc_info.cur_step_pattern_num = 0;
 			chr_err("MT5715 WLC get cur_step_pattern_num failed\n");
 		}
-		
+
 		if ((MT5715_wlc_info.cur_step_pattern_num == 0)||(MT5715_wlc_info.cur_step_pattern_num > 10)){
 			chr_err("MT5715 WLC: invalid cur_step_pattern_num(%d)\n",MT5715_wlc_info.cur_step_pattern_num);
 			return -EINVAL;
@@ -1567,11 +1567,11 @@ static int MT5715_wlc_parse_dts(struct charger_manager *info){
 		if (!MT5715_wlc_info.mt5715_input_vol){
 			return -ENOMEM;
 		}
-		
+
 		current_input = MT5715_wlc_info.mt5715_input_vol;
 		for(i=0;i<MT5715_wlc_info.cur_step_pattern_num;i++){
 			if (!of_property_read_u32_index(np,"MT5715_wlc_cur_step_input",i,current_input)){
-				chr_err("MT5715 WLC: input pattern %d %d\n",i,*current_input);
+				chr_debug("MT5715 WLC: input pattern %d %d\n",i,*current_input);
 				current_input++;
 			}else{
 				chr_err("MT5715 WLC get cur_step_pattern_input failed\n");
@@ -1586,7 +1586,7 @@ static int MT5715_wlc_parse_dts(struct charger_manager *info){
 		current_output = MT5715_wlc_info.mt5715_vol;
 		for(i=0;i<MT5715_wlc_info.cur_step_pattern_num;i++){
 			if (!of_property_read_u32_index(np,"MT5715_wlc_cur_step_output",i,current_output)){
-				chr_err("MT5715 WLC: output pattern %d %d\n",i,*current_output);
+				chr_debug("MT5715 WLC: output pattern %d %d\n",i,*current_output);
 				current_output++;
 			}else{
 				chr_err("MT5715 WLC get cur_step_pattern_output failed\n");

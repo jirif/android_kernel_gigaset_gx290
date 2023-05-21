@@ -1715,7 +1715,7 @@ static void adc_debug_init(void)
 	}
 	proc_create("dump_auxadc_status", 0644, mt_auxadc_dir,
 			&auxadc_debug_proc_fops);
-	pr_info(TAG "proc_create auxadc_debug_proc_fops\n");
+	pr_debug(TAG "proc_create auxadc_debug_proc_fops\n");
 }
 
 

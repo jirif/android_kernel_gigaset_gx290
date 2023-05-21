@@ -1362,7 +1362,7 @@ void ccci_modem_restore_reg(struct ccci_modem *md)
 	    cldma_reg_get_4msb_val(md_ctrl->cldma_ap_ao_base,
 				   CLDMA_AP_UL_START_ADDR_4MSB,
 				   md_ctrl->txq[0].index)) {
-		CCCI_NORMAL_LOG(md->index, TAG,
+		CCCI_DEBUG_LOG(md->index, TAG,
 				"Resume cldma pdn register: No need  ...\n");
 		spin_lock_irqsave(&md_ctrl->cldma_timeout_lock, flags);
 		if (!(cldma_read32(md_ctrl->cldma_ap_ao_base,
@@ -1373,7 +1373,7 @@ void ccci_modem_restore_reg(struct ccci_modem *md)
 			cldma_read32(md_ctrl->cldma_ap_pdn_base,
 				     CLDMA_AP_SO_RESUME_CMD); /* dummy read */
 		} else
-			CCCI_NORMAL_LOG(
+			CCCI_DEBUG_LOG(
 			    md->index, TAG,
 			    "Resume cldma ao register: No need  ...\n");
 		spin_unlock_irqrestore(&md_ctrl->cldma_timeout_lock, flags);

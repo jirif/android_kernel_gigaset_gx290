@@ -11,7 +11,7 @@
  * GNU General Public License for more details.
  */
 
-#define DEBUG 1
+//#define DEBUG 1
 #include <linux/version.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -1448,7 +1448,7 @@ static int tscpu_thermal_suspend
 	int cnt = 0;
 	int temp = 0;
 
-	tscpu_printk("%s\n", __func__);
+	tscpu_dprintk("%s\n", __func__);
 #if THERMAL_PERFORMANCE_PROFILE
 	struct timeval begin, end;
 	unsigned long val;
@@ -1542,7 +1542,7 @@ static int tscpu_thermal_resume(struct platform_device *dev)
 	int temp = 0;
 	int cnt = 0;
 
-	tscpu_printk("%s\n", __func__);
+	tscpu_dprintk("%s\n", __func__);
 
 	g_tc_resume = 1; /* set "1", don't read temp during start resume */
 

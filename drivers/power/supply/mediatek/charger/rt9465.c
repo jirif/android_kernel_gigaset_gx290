@@ -1702,7 +1702,7 @@ static int rt9465_suspend(struct device *dev)
 {
 	struct rt9465_info *info = dev_get_drvdata(dev);
 
-	chr_info("%s\n", __func__);
+	chr_debug("%s\n", __func__);
 	if (device_may_wakeup(dev))
 		enable_irq_wake(info->irq);
 
@@ -1713,7 +1713,7 @@ static int rt9465_resume(struct device *dev)
 {
 	struct rt9465_info *info = dev_get_drvdata(dev);
 
-	chr_info("%s\n", __func__);
+	chr_debug("%s\n", __func__);
 	if (device_may_wakeup(dev))
 		disable_irq_wake(info->irq);
 

@@ -423,7 +423,7 @@ void mtk_idle_dump_cnt_in_interval(void)
 	mtk_idle_dump_cnt(IDLE_TYPE_SO);
 
 	/* dump log */
-	pr_warn("%s\n", get_log());
+	pr_debug("%s\n", get_log());
 
 	/* dump idle ratio */
 	if (idle_ratio_en) {
@@ -501,7 +501,7 @@ bool mtk_idle_select_state(int type, int reason)
 			idle_buf_append(idle_state_log, "[%d] = (%lu,%lu), ",
 				i, p_idle->cnt[i],
 				idle_prof[IDLE_TYPE_RG].block.cnt[i]);
-		pr_warn("%s\n", get_idle_buf(idle_state_log));
+		pr_debug("%s\n", get_idle_buf(idle_state_log));
 
 		/* block category */
 		reset_idle_buf(idle_state_log);
@@ -511,7 +511,7 @@ bool mtk_idle_select_state(int type, int reason)
 			idle_buf_append(idle_state_log, "[%s] = %lu, ",
 					mtk_get_reason_name(i),
 					p_idle->block_cnt[i]);
-		pr_warn("%s\n", get_idle_buf(idle_state_log));
+		pr_debug("%s\n", get_idle_buf(idle_state_log));
 
 		reset_idle_buf(idle_state_log);
 
@@ -520,7 +520,7 @@ bool mtk_idle_select_state(int type, int reason)
 		for (i = 0; i < NR_GRPS; i++)
 			idle_buf_append(idle_state_log,
 					"0x%08x, ", p_idle->block_mask[i]);
-		pr_warn("%s\n", get_idle_buf(idle_state_log));
+		pr_debug("%s\n", get_idle_buf(idle_state_log));
 
 		memset(p_idle->block_cnt, 0,
 				NR_REASONS * sizeof(p_idle->block_cnt[0]));

@@ -204,7 +204,7 @@ static VOID wmt_dev_early_suspend(struct early_suspend *h)
 	atomic_set(&g_es_lr_flag_for_lpbk_onoff, 0);
 	atomic_set(&g_es_lr_flag_for_blank, 0);
 
-	WMT_WARN_FUNC("@@@@@@@@@@wmt enter early suspend@@@@@@@@@@@@@@\n");
+	WMT_DBG_FUNC("@@@@@@@@@@wmt enter early suspend@@@@@@@@@@@@@@\n");
 
 	schedule_work(&gPwrOnOffWork);
 }
@@ -215,7 +215,7 @@ static VOID wmt_dev_late_resume(struct early_suspend *h)
 	atomic_set(&g_es_lr_flag_for_lpbk_onoff, 1);
 	atomic_set(&g_es_lr_flag_for_blank, 1);
 
-	WMT_WARN_FUNC("@@@@@@@@@@wmt enter late resume@@@@@@@@@@@@@@\n");
+	WMT_DBG_FUNC("@@@@@@@@@@wmt enter late resume@@@@@@@@@@@@@@\n");
 
 	schedule_work(&gPwrOnOffWork);
 
@@ -248,7 +248,7 @@ static INT32 wmt_fb_notifier_callback(struct notifier_block *self, ULONG event, 
 		atomic_set(&g_es_lr_flag_for_quick_sleep, 0);
 		atomic_set(&g_es_lr_flag_for_lpbk_onoff, 1);
 		atomic_set(&g_es_lr_flag_for_blank, 1);
-		WMT_WARN_FUNC("@@@@@@@@@@wmt enter UNBLANK @@@@@@@@@@@@@@\n");
+		WMT_DBG_FUNC("@@@@@@@@@@wmt enter UNBLANK @@@@@@@@@@@@@@\n");
 		if (hif_info == 0) {
 			atomic_set(&g_late_pwr_on_for_blank, 1);
 			break;
@@ -259,7 +259,7 @@ static INT32 wmt_fb_notifier_callback(struct notifier_block *self, ULONG event, 
 		atomic_set(&g_es_lr_flag_for_quick_sleep, 1);
 		atomic_set(&g_es_lr_flag_for_lpbk_onoff, 0);
 		atomic_set(&g_es_lr_flag_for_blank, 0);
-		WMT_WARN_FUNC("@@@@@@@@@@wmt enter early POWERDOWN @@@@@@@@@@@@@@\n");
+		WMT_DBG_FUNC("@@@@@@@@@@wmt enter early POWERDOWN @@@@@@@@@@@@@@\n");
 		schedule_work(&gPwrOnOffWork);
 		break;
 	default:
@@ -743,7 +743,7 @@ static UINT32 wmt_dev_tra_poll(VOID)
 		(*mtk_wcn_wlan_bus_tx_cnt_clr)();
 	else
 		WMT_ERR_FUNC("WMT-DEV:error chip type(%d)\n", chip_type);
-	WMT_INFO_FUNC("**poll_during_time = %d > %d, during_count = %d > %d, query\n",
+	WMT_DBG_FUNC("**poll_during_time = %d > %d, during_count = %d > %d, query\n",
 		      jiffies_to_msecs(poll_during_time), TIME_THRESHOLD_TO_TEMP_QUERY,
 		      jiffies_to_msecs(during_count), COUNT_THRESHOLD_TO_TEMP_QUERY);
 
@@ -860,7 +860,7 @@ LONG wmt_dev_tm_temp_query(VOID)
 		osal_unlock_unsleepable_lock(&g_temp_query_spinlock);
 
 		if (index == -1) {
-			WMT_INFO_FUNC("[Thermal] current_temp = 0x%x\n", (current_temp & 0xFF));
+			WMT_DBG_FUNC("[Thermal] current_temp = 0x%x\n", (current_temp & 0xFF));
 		} else {
 			WMT_ERR_FUNC("Temperature(0x%x) update failed due to modified idx_temp_table(%d, %d)",
 				(current_temp & 0xFF), idx_temp_table, index);
