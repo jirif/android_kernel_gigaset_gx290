@@ -303,8 +303,8 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 
 HOSTCC       = gcc
 HOSTCXX      = g++
-HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu89
-HOSTCXXFLAGS = -O2
+HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu89 -march=native -mtune=native
+HOSTCXXFLAGS = -O2 -march=native -mtune=native
 
 # Decide whether to build built-in, modular, or both.
 # Normally, just do built-in.
@@ -726,6 +726,11 @@ KBUILD_CFLAGS   += -Os
 else
 KBUILD_CFLAGS   += -O2
 endif
+
+# Add some optimizations specific to Volla Phone's ARM64 Cortex-A53 CPU cores
+KBUILD_CFLAGS	+= $(call cc-option,-ftree-vectorize,)
+KBUILD_CFLAGS	+= $(call cc-option,-funsafe-math-optimizations,)
+KBUILD_CFLAGS	+= -mcpu=cortex-a53+simd+crypto+crc
 
 # Tell gcc to never replace conditional load with a non-conditional one
 KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
